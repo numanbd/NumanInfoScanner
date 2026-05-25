@@ -34,10 +34,11 @@ jobs:
           echo "Repository files:"
           ls -la
 
-          ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" | head -n 1)
+          ZIP_FILE="./NumanInfoScanner_Fixed.zip"
 
-          if [ -z "$ZIP_FILE" ]; then
-            echo "No ZIP file found in repository root"
+          if [ ! -f "$ZIP_FILE" ]; then
+            echo "Fixed ZIP file not found: $ZIP_FILE"
+            echo "Please upload NumanInfoScanner_Fixed.zip in repository root."
             exit 1
           fi
 
