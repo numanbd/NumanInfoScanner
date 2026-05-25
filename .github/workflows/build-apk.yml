@@ -29,7 +29,7 @@ jobs:
         with:
           gradle-version: 8.11.1
 
-      - name: Unzip Android project
+      - name: Unzip fixed Android project
         run: |
           echo "Repository files:"
           ls -la
@@ -37,37 +37,35 @@ jobs:
           ZIP_FILE="./NumanInfoScanner_Fixed.zip"
 
           if [ ! -f "$ZIP_FILE" ]; then
-            echo "Fixed ZIP file not found: $ZIP_FILE"
-            echo "Please upload NumanInfoScanner_Fixed.zip in repository root."
+            echo "ERROR: NumanInfoScanner_Fixed.zip not found in repository root."
+            echo "Please upload the fixed ZIP with exact name: NumanInfoScanner_Fixed.zip"
             exit 1
           fi
 
-          echo "Found ZIP: $ZIP_FILE"
+          echo "Using ZIP: $ZIP_FILE"
+          rm -rf extracted
           unzip -o "$ZIP_FILE" -d extracted
 
           echo "Extracted files:"
-          find extracted -maxdepth 5 -type f | head -n 150
+          find extracted -maxdepth 5 -type f | head -n 200
 
           PROJECT_DIR=$(find extracted -name "settings.gradle" -type f -printf '%h\n' | head -n 1)
 
           if [ -z "$PROJECT_DIR" ]; then
-            echo "Android project folder not found. settings.gradle missing."
+            echo "ERROR: Android project folder not found. settings.gradle missing."
             exit 1
           fi
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
           echo "Project folder: $PROJECT_DIR"
 
+          echo "Checking build.gradle:"
+          cat "$PROJECT_DIR/app/build.gradle"
+
       - name: Build Debug APK
         run: |
           cd "$PROJECT_DIR"
-
-          if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
-            ./gradlew assembleDebug
-          else
-            gradle assembleDebug
-          fi
+          gradle assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
