@@ -29,38 +29,30 @@ jobs:
         with:
           gradle-version: 8.11.1
 
-      - name: Unzip fixed Android project
+      - name: Unzip Android project
         run: |
           echo "Repository files:"
           ls -la
 
-          ZIP_FILE="./NumanInfoScanner_Fixed.zip"
+          ZIP_FILE="./NumanInfoScanner_NoDependency.zip"
 
           if [ ! -f "$ZIP_FILE" ]; then
-            echo "ERROR: NumanInfoScanner_Fixed.zip not found in repository root."
-            echo "Please upload the fixed ZIP with exact name: NumanInfoScanner_Fixed.zip"
+            echo "ZIP not found: $ZIP_FILE"
             exit 1
           fi
 
-          echo "Using ZIP: $ZIP_FILE"
           rm -rf extracted
           unzip -o "$ZIP_FILE" -d extracted
-
-          echo "Extracted files:"
-          find extracted -maxdepth 5 -type f | head -n 200
 
           PROJECT_DIR=$(find extracted -name "settings.gradle" -type f -printf '%h\n' | head -n 1)
 
           if [ -z "$PROJECT_DIR" ]; then
-            echo "ERROR: Android project folder not found. settings.gradle missing."
+            echo "Android project folder not found"
             exit 1
           fi
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
           echo "Project folder: $PROJECT_DIR"
-
-          echo "Checking build.gradle:"
-          cat "$PROJECT_DIR/app/build.gradle"
 
       - name: Build Debug APK
         run: |
